@@ -25,12 +25,12 @@ export class UserRemoteFacade extends BaseRemoteFacade<UserModel> implements ICr
 
   public async paginateUnwatchedUsers(sessionUserIndex: number, paginationOptions?: any) {
     const { limit, offset } = paginationOptions;
-    let userLastWatchedIndex = await this.userHistoryRepository.findOne({
+    const userLastWatched: UserHistoryModel = await this.userHistoryRepository.findOne({
       where: { userIndex: sessionUserIndex },
       order: [['targetUserIndex', 'DESC']],
     });
 
-    userLastWatchedIndex = userLastWatchedIndex || 0;
+    const userLastWatchedIndex = userLastWatched ? userLastWatched.targetUserIndex : 0;
 
     const nextPageUsers: any[] = await this.postgresConnection.query(`
       SELECT id,
@@ -87,7 +87,7 @@ export class UserRemoteFacade extends BaseRemoteFacade<UserModel> implements ICr
         ON users.user_index = user_histories.target_user_index
       WHERE user_histories.user_index = $sessionUserIndex
         AND user_histories.action_id = $actionId
-      ORDER BY user_histories.target_user_index DESC
+      ORDER BY user_histories.target_user_index ASC
       LIMIT $limit OFFSET $offset;
     `, { type: 'SELECT', bind: { sessionUserIndex, limit, offset, actionId } });
 

@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as helmet from 'helmet';
+import * as cors from 'cors';
 import { inject } from 'inversify';
 
 import { Configuration, ILogger, IMiddleware, IRouter, IServer } from '@src/shared/interfaces';
@@ -29,6 +30,7 @@ export class HttpServer implements IServer {
   protected initHttpServer(): express.Application {
     const httpServer = express();
 
+    httpServer.use(cors());
     httpServer.use(helmet());
 
     httpServer.use(express.urlencoded({

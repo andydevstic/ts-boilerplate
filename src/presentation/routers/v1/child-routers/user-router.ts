@@ -17,7 +17,7 @@ export class UserRouter implements IRouter {
   protected initRoutes(): void {
     this.router.get('/', this.crudWorkflowInterceptor.activate(MODEL_NAMES.USER, UserControllerMethods.PAGINATE_UNWATCHED_USERS));
     this.router.get('/history', this.crudWorkflowInterceptor.activate(MODEL_NAMES.USER, UserControllerMethods.PAGINATE_USER_HISTORY));
-    this.router.get('/:userId', this.crudWorkflowInterceptor.activate(MODEL_NAMES.USER, BaseControllerMethods.FIND_BY_ID));
+    this.router.get('/:id', this.crudWorkflowInterceptor.activate(MODEL_NAMES.USER, BaseControllerMethods.FIND_BY_ID));
 
     this.router.post('/action', this.crudWorkflowInterceptor.activate(MODEL_NAMES.USER, UserControllerMethods.RECORD_USER_ACTION));
   }
