@@ -36,6 +36,14 @@ export abstract class BaseController<T> {
     };
   }
 
+  public async findById(req: IRequest) {
+    const { id } = req.params;
+    const findOptions = req.context.queryString;
+    const parsedOptions = this.optionsParser.parse(findOptions);
+
+    return this.remoteFacade.findById(id, parsedOptions);
+  }
+
   public create(req: IRequest): Promise<T> {
     const createData = req.body;
 
