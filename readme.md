@@ -18,8 +18,8 @@ This project is a backend service for the Tinder Clone project.
 1. Create a database called `tinder_clone` in your local Postgres. You can choose other names but please make sure to update the `development.env` file.
 2. Install the project: `yarn install`.
 3. Run the migration commands:
-  _ Create tables: `yarn migrate::run`.
-  _ Create mock data to test: `yarn seed::run-all`.
+  - Create tables: `yarn migrate::run`.
+  - Create mock data to test: `yarn seed::run-all`.
 
 ## Authentication
 
