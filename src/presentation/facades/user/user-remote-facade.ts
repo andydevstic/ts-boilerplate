@@ -87,7 +87,7 @@ export class UserRemoteFacade extends BaseRemoteFacade<UserModel> implements ICr
         ON users.user_index = user_histories.target_user_index
       WHERE user_histories.user_index = $sessionUserIndex
         AND user_histories.action_id = $actionId
-      ORDER BY user_histories.target_user_index ASC
+      ORDER BY user_histories.target_user_index DESC
       LIMIT $limit OFFSET $offset;
     `, { type: 'SELECT', bind: { sessionUserIndex, limit, offset, actionId } });
 
