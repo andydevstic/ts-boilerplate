@@ -1,9 +1,6 @@
-import { UserModel } from '@src/models';
 import { Request, Router } from 'express';
-import { SignOptions, VerifyOptions } from 'jsonwebtoken';
-import { Transaction } from 'sequelize/types';
 
-import { FILTER_OPERATORS, MODEL_NAMES } from './constants';
+import { FILTER_OPERATORS } from './constants';
 
 type AnyParams = any;
 
@@ -28,6 +25,15 @@ export interface ISort {
   column?: string;
   dimension?: string;
   direction?: 'ASC' | 'DESC';
+}
+
+export interface IGeneralType {
+  id: number;
+  name: string;
+}
+
+export interface IAuthService {
+  login(email: string, password: string): Promise<string>;
 }
 
 export interface IFilter {
@@ -73,9 +79,20 @@ export interface IInclude {
   filters?: IFilter[];
 }
 
+export interface IUser {
+  email: string;
+  dateOfBirth: Date;
+  fullName: string;
+  password: string;
+  status: number;
+  userType: number;
+  meta: any;
+}
+
 export type LoggingModuleName = string;
 
 export interface ConnectionAdapter<T = any> {
+  connect(...args: any[]): Promise<void>;
   getConnection(): T;
 }
 
@@ -91,8 +108,6 @@ export interface ICriteria {
   search?: string;
   groupBy?: string[];
 }
-
-export interface RdsTransaction extends Transaction {}
 
 export interface TransactionFactory<T> {
   createTransaction?(): Promise<T>;
@@ -110,15 +125,13 @@ export interface ILogger {
 }
 
 export interface LoginResponse {
-  success: boolean,
-  message?: string,
-  token?: string,
-  user?: AuthenticatedUser, 
+  message?: string;
+  token?: string;
+  user?: AuthenticatedUser;
 }
 
 export interface RegisterResponse {
-  success: boolean,
-  message?: string,
+  message?: string;
 }
 
 export interface IServer {
@@ -126,11 +139,11 @@ export interface IServer {
 }
 
 export interface AppErrorDetail {
-  field: string,
-  message: string,
+  field: string;
+  message: string;
 }
 
-export interface ICrudRemoteFacade<T> {
+export interface ICrudService<T> {
   find(option?: any, ...args: any[]): Promise<T[]>;
   findById(id: any, option?: any, ...args: any[]): Promise<T>;
   paginate(option?: any): Promise<PaginateResult<T>>;
@@ -139,7 +152,7 @@ export interface ICrudRemoteFacade<T> {
   deleteById(id: any, option?: any, ...args: any[]): Promise<void>;
 }
 
-export interface PaginateResult<T> {
+export interface PaginateResult<T = any> {
   docs: T[];
   totalCount: number;
 }
@@ -148,8 +161,6 @@ export interface IRouter {
   route(): Router;
 }
 
-export type ICrudWorkflowInterceptor = IMiddleware<[MODEL_NAMES, string], any>;
-
 export interface IEncryptionHelper {
   encrypt(data: string): string;
   decrypt(data: string): string;
@@ -157,9 +168,14 @@ export interface IEncryptionHelper {
   compareHash(data: string, hashed: string): boolean;
 }
 
-export interface IJwtHelper<T = any> {
-  signin(payload: T, options?: SignOptions): string;
-  verify(token: string, options?: VerifyOptions): T;
+export interface IJwtService<T = any> {
+  sign(payload: T): Promise<string>;
+  verify(token: string): Promise<T>;
+}
+
+export interface IHashService {
+  encrypt(payload: string): Promise<string>;
+  compare(data: string, encrypted: string): Promise<boolean>;
 }
 
 export interface IRequest extends Request {
@@ -169,8 +185,7 @@ export interface IRequest extends Request {
 
 export interface RequestContext {
   queryString: any;
-  transaction?: RdsTransaction;
-  user?: UserModel;
+  user?: IUser;
 }
 
 export interface ValidationSchema {

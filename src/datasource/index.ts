@@ -1,2 +1,2 @@
-export * from './adapters';
 export * from './lru';
+export * from './nosql';

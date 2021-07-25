@@ -1,3 +1,4 @@
 export * from './shared';
 
-export * from './users';
+export * from './user';
+export * from './auth';

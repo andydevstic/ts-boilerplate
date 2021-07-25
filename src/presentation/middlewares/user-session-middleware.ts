@@ -1,27 +1,30 @@
-import { UserModel } from "@src/models";
 import { API_PROVIDER_NAMES, API_PROVIDER_TYPES, MODEL_NAMES } from "@src/shared/constants";
 import { UnauthorizedError } from "@src/shared/errors";
-import { ICrudRemoteFacade, IMiddleware, IRequest } from "@src/shared/interfaces";
+import { ICrudService, IJwtService, IMiddleware, IRequest, IUser } from "@src/shared/interfaces";
 import { NextFunction, Response } from "express";
 import { injectNamed, provideSingletonNamed } from "../core/ioc/decorators";
 
 @provideSingletonNamed(API_PROVIDER_TYPES.MIDDLEWARE, API_PROVIDER_NAMES.USER_SESSION)
 export class UserSessionMiddleware implements IMiddleware<[void]> {
   constructor(
-    @injectNamed(API_PROVIDER_TYPES.REMOTE_FACADE, MODEL_NAMES.USER)
-    protected userRemoteFacade: ICrudRemoteFacade<UserModel>,
+    @injectNamed(API_PROVIDER_TYPES.SERVICE, MODEL_NAMES.USER)
+    protected userService: ICrudService<IUser> & { findByEmail(email: string): Promise<IUser> },
+
+    @injectNamed(API_PROVIDER_TYPES.SERVICE, API_PROVIDER_NAMES.JWT)
+    protected jwtService: IJwtService,
   ) {}
 
   public activate() {
     return async (req: IRequest, res: Response, next: NextFunction) => {
       try {
-        const userId = req.header('User-Id');
+        const jwt = req.header('Authorization');
 
-        if (!userId) {
-          throw new UnauthorizedError('You are not authorized');
+        if (!jwt) {
+          return next();
         }
 
-        const user = await this.userRemoteFacade.findById(userId);
+        const sessionUser = await this.jwtService.verify(jwt);
+        const user = await this.userService.findByEmail(sessionUser.email);
 
         if (!user) {
           throw new UnauthorizedError('You are not authorized');
@@ -33,6 +36,6 @@ export class UserSessionMiddleware implements IMiddleware<[void]> {
       } catch (error) {
         next(error);
       }
-    }
+    };
   }
 }

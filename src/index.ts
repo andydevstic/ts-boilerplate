@@ -7,14 +7,16 @@ dotenv.config({
 });
 
 import { container } from '@src/presentation/core/ioc/app-loaders';
-import { ILogger, IServer } from './shared/interfaces';
+import { ILogger } from './shared/interfaces';
 import { API_PROVIDER_NAMES, API_PROVIDER_TYPES } from './shared/constants';
 
-const httpServer = container.getNamed<IServer>(API_PROVIDER_TYPES.SERVER, API_PROVIDER_NAMES.HTTP);
+const httpServer = container.getNamed<any>(API_PROVIDER_TYPES.SERVER, API_PROVIDER_NAMES.HTTP);
 const logger = container.getNamed<ILogger>(API_PROVIDER_TYPES.LOGGER, API_PROVIDER_NAMES.LOG4JS);
 
-httpServer
-  .listen()
-  .catch((error) => {
+httpServer.establishExternalConnections()
+  .then((server: any) => server.listen())
+  .catch((error: Error) => {
     logger.error(error.message);
+
+    process.exit(1);
   });

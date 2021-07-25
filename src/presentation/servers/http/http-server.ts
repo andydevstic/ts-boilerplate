@@ -3,12 +3,14 @@ import * as helmet from 'helmet';
 import * as cors from 'cors';
 import { inject } from 'inversify';
 
-import { Configuration, ILogger, IMiddleware, IRouter, IServer } from '@src/shared/interfaces';
+import { Configuration, ConnectionAdapter, ILogger, IMiddleware, IRouter } from '@src/shared/interfaces';
 import { injectNamed, provideNamed } from '@src/presentation/core/ioc/decorators';
 import { API_PROVIDER_TYPES, API_PROVIDER_NAMES } from '@src/shared/constants';
+import { Connection } from 'mongoose';
+import { InternalServerError } from '@src/shared/errors';
 
 @provideNamed(API_PROVIDER_TYPES.SERVER, API_PROVIDER_NAMES.HTTP)
-export class HttpServer implements IServer {
+export class HttpServer {
   protected server: express.Application;
 
   constructor(
@@ -21,10 +23,37 @@ export class HttpServer implements IServer {
     @injectNamed(API_PROVIDER_TYPES.ROUTER, API_PROVIDER_NAMES.V1)
     protected v1Router: IRouter,
 
+    @injectNamed(API_PROVIDER_TYPES.ADAPTER, API_PROVIDER_NAMES.MONGODB)
+    protected mongoClient: ConnectionAdapter<Connection>,
+
     @injectNamed(API_PROVIDER_TYPES.MIDDLEWARE, API_PROVIDER_NAMES.ERROR_HANDLER)
     protected errorHandlerMiddleware: IMiddleware<[void]>,
   ) {
-    this.server = this.initHttpServer();
+  }
+
+  public async establishExternalConnections(): Promise<HttpServer> {
+    await this.connectDatabases();
+
+    return this;
+  }
+
+  protected async connectDatabases(): Promise<void> {
+    try {
+      const mongoConfig = this.config.get('database.mongo');
+      const { host, port, username, password, database, config } = mongoConfig;
+
+      let uri: string;
+
+      if (username) {
+        uri = `mongodb://${username}:${password}@${host}:${port}/${database}`;
+      } else {
+        uri = `mongodb://${host}:${port}/${database}`;
+      }
+
+      await this.mongoClient.connect(uri, config);
+    } catch (error) {
+      throw new InternalServerError('Unable to connect mongodb', error.message);
+    }
   }
 
   protected initHttpServer(): express.Application {
@@ -51,7 +80,8 @@ export class HttpServer implements IServer {
   public async listen(port: number, host?: string): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        const serverOption = this.config.get('http.server')
+        this.server = this.initHttpServer();
+        const serverOption = this.config.get('http.server');
 
         this.server.listen(port || serverOption.port, host || serverOption.host, () => {
           this.logger.info(`Server is listening on port ${serverOption.port}`);

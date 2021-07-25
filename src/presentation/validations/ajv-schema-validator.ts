@@ -33,7 +33,7 @@ export class AjvSchemaValidator {
     }
 
     const isValid = validator(payload);
-    const errors = validator.errors || [];    
+    const errors = validator.errors || [];
     const formatedErrors = this.ajvErrorFormater.format(errors);
 
     return {

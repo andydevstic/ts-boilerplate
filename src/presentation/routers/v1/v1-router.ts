@@ -12,6 +12,9 @@ export class V1Router implements IRouter {
     @injectNamed(API_PROVIDER_TYPES.ROUTER, MODEL_NAMES.USER)
     protected userRouter: IRouter,
 
+    @injectNamed(API_PROVIDER_TYPES.ROUTER, API_PROVIDER_NAMES.AUTH)
+    protected authRouter: IRouter,
+
     @injectNamed(API_PROVIDER_TYPES.MIDDLEWARE, API_PROVIDER_NAMES.REQUEST_CONTEXT)
     protected requestContextMiddleware: IMiddleware<[void]>,
 
@@ -26,6 +29,7 @@ export class V1Router implements IRouter {
     this.v1Router.use(this.userSessionMiddleware.activate());
 
     this.v1Router.use('/users', this.userRouter.route());
+    this.v1Router.use('/auth', this.authRouter.route());
   }
 
   public route(): Router {

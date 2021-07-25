@@ -1,27 +1,28 @@
-import { Op } from "sequelize";
-
 export const API_PROVIDER_NAMES = {
   REQUEST_CONTEXT: 'REQUEST_CONTEXT',
   DATABASE: 'DATABASE',
   LRU_CACHE: 'LRU_CACHE',
   V1: 'V1',
   APP_DATABASE: 'APP_DATABASE',
-  POSTGRES: 'POSTGRES',
+  MONGODB: 'MONGODB',
   LOG4JS: 'LOG4JS',
   API_QUERY_STRING: 'API_QUERY_STRING',
   ERROR_HANDLER: 'ERROR_HANDLER',
+  REQUEST_HANDLER: 'REQUEST_HANDLER',
   USER_SESSION: 'USER_SESSION',
+  JWT: 'JWT',
+  HASH: 'HASH',
   AUTH_USER: 'AUTH_USER',
   AJV_ERROR: 'AJV_ERROR',
   HTTP: 'HTTP',
   REDIS: 'REDIS',
   REQUEST: 'REQUEST',
   AUTH: 'AUTH',
-  SEQUELIZE_OPTIONS: 'SEQUELIZE_OPTIONS',
+  MONGO_OPTIONS: 'MONGO_OPTIONS',
   AUTH_WORKFLOW: 'AUTH_WORKFLOW',
   CRUD_WORKFLOW: 'CRUD_WORKFLOW',
   RESPONSE: 'RESPONSE',
-}
+};
 
 export enum FILTER_OPERATORS {
   GREATER_THAN = 'is_greater_than',
@@ -53,19 +54,9 @@ export enum APP_DATABASES {
   REDIS = 'REDIS',
 }
 
-export enum APP_LANGUAGES {
-  ENG = 'ENG',
-  VIET = 'VIET',
-}
-
 export enum MODEL_NAMES {
   USER = 'USER',
-  USER_HISTORY = 'USER_HISTORY',
-}
-
-export enum TABLE_NAMES {
-  USER = 'users',
-  USER_HISTORY = 'user_histories'
+  USER_TYPE = 'USER_TYPE',
 }
 
 export enum REQUEST_METHODS {
@@ -75,43 +66,6 @@ export enum REQUEST_METHODS {
   DELETE = 'delete',
 }
 
-export const SEQUELIZE_OPERATOR_ALIASES = {
-  $eq: Op.eq,
-  $gt: Op.gt,
-  $gte: Op.gte,
-  $ne: Op.ne,
-  $lte: Op.lte,
-  $lt: Op.lt,
-  $not: Op.not,
-  $in: Op.in,
-  $notIn: Op.notIn,
-  $is: Op.is,
-  $like: Op.like,
-  $notLike: Op.notLike,
-  $iLike: Op.iLike,
-  $notILike: Op.notILike,
-  $regexp: Op.regexp,
-  $notRegexp: Op.notRegexp,
-  $iRegexp: Op.iRegexp,
-  $notIRegexp: Op.notIRegexp,
-  $between: Op.between,
-  $notBetween: Op.notBetween,
-  $overlap: Op.overlap,
-  $contains: Op.contains,
-  $contained: Op.contained,
-  $adjacent: Op.adjacent,
-  $strictLeft: Op.strictLeft,
-  $strictRight: Op.strictRight,
-  $noExtendRight: Op.noExtendRight,
-  $noExtendLeft: Op.noExtendLeft,
-  $and: Op.and,
-  $or: Op.or,
-  $any: Op.any,
-  $all: Op.all,
-  $values: Op.values,
-  $col: Op.col,
-};
-
 export const API_PROVIDER_TYPES = {
   SERVER: Symbol.for('SERVER'),
   REGISTRY: Symbol.for('REGISTRY'),
@@ -119,6 +73,7 @@ export const API_PROVIDER_TYPES = {
   CONTROLLER: Symbol.for('CONTROLLER'),
   CONTAINER: Symbol.for('CONTAINER'),
   GATEWAY: Symbol.for('GATEWAY'),
+  SERVICE: Symbol.for('SERVICE'),
   PARSER: Symbol.for('PARSER'),
   LOGGER: Symbol.for('LOGGER'),
   CONSTRUCTOR: Symbol.for('CONSTRUCTOR'),
@@ -129,7 +84,6 @@ export const API_PROVIDER_TYPES = {
   ADAPTER: Symbol.for('ADAPTER'),
   ROUTER: Symbol.for('ROUTER'),
   DB_MODEL: Symbol.for('DB_MODEL'),
-  REMOTE_FACADE: Symbol.for('REMOTE_FACADE'),
   HTTP_REQUEST: Symbol.for('HTTP_REQUEST'),
 };
 
@@ -142,11 +96,11 @@ export enum VALIDATION_SCHEMAS {
   FIND_BY_ID = 'FIND_BY_ID',
 
   LOGIN = 'LOGIN',
-  PAGINATE_UNWATCHED_USERS = 'PAGINATE_UNWATCHED_USERS',
-  RECORD_USER_ACTION = 'RECORD_USER_ACTION',
-  PAGINATE_USER_HISTORY = 'PAGINATE_USER_HISTORY',
+  GET_USER_TYPES = 'GET_USER_TYPES',
+  CREATE_USER = 'CREATE_USER',
+  PAGINATE_USERS = 'PAGINATE_USERS',
+  REGISTER = 'REGISTER',
 }
-
 
 export enum CustomErrors {
   BAD_REQUEST = 'Bad request error',
@@ -161,6 +115,7 @@ export const GLOBAL_SYMBOLS = {
 };
 
 export enum BaseControllerMethods {
+  FIND = 'find',
   FIND_BY_ID = 'findById',
   FIND_OR_PAGINATE = 'findOrPaginate',
   PAGINATE = 'paginate',
@@ -169,10 +124,11 @@ export enum BaseControllerMethods {
   DELETE_BY_ID = 'deleteById',
 }
 
-export enum UserControllerMethods {
-  RECORD_USER_ACTION = 'recordUserAction',
-  PAGINATE_USER_HISTORY = 'paginateUserHistory',
-  PAGINATE_UNWATCHED_USERS = 'paginateUnwatchedUsers',
+export enum USER_STATUS {
+  INACTIVE,
+  ACTIVE,
+  SUSPENDED,
+  DELETED
 }
 
 export enum USER_TYPES {
@@ -181,11 +137,9 @@ export enum USER_TYPES {
   USER
 }
 
-export enum USER_ACTION_TYPES {
-  LIKED = 1,
-  PASSED,
-}
-
-export const REDIS_KEYS_FACTORY = {
-  SESSION_TOKEN: (sessionId: string) => `sessions:${sessionId}`,
+export enum USER_PERMISSIONS {
+  READ = 1,
+  CREATE,
+  UPDATE,
+  DELETE
 }

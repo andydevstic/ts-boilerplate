@@ -20,19 +20,19 @@ export function provideNamed(identifier: symbol, name: string) {
 export function constructorProvideNamed(identifier: symbol, name: string) {
   return (classFunction: Function) => {
     appContainer.bind(identifier).toConstantValue(classFunction).whenTargetNamed(name);
-  }
+  };
 }
 
 export function constructorProvideTagged(identifier: symbol, tag: string, value: any) {
   return (classFunction: Function) => {
     appContainer.bind(identifier).toConstantValue(classFunction).whenTargetTagged(tag, value);
-  }
+  };
 }
 
 export function constructorProvide(identifier: symbol) {
   return (classFunction: Function) => {
     appContainer.bind(identifier).toFunction(classFunction);
-  }
+  };
 }
 
 export function provideSingletonNamed(identifier: symbol, name: string) {
@@ -67,11 +67,16 @@ export function useLruCache(options: {
   return (classPrototype: any, propertyName: string, propertyDescriptor: PropertyDescriptor) => {
     const unboundOriginalHandler = propertyDescriptor.value;
 
-    const moduleName = domainName || 'app';
+    const moduleName = domainName || classPrototype.constructor.name;
 
     propertyDescriptor.value = async function (...args: any[]) {
       const boundedOriginalHandler = unboundOriginalHandler.bind(this);
-      const lruCacheRegistry = appContainer.getNamed<IRegistry<[string, any], ILruCache>>(API_PROVIDER_TYPES.REGISTRY, API_PROVIDER_NAMES.LRU_CACHE);
+      const lruCacheRegistry = appContainer
+        .getNamed<IRegistry<[string, any], ILruCache>>(
+          API_PROVIDER_TYPES.REGISTRY,
+          API_PROVIDER_NAMES.LRU_CACHE,
+        );
+
       const lruCache = lruCacheRegistry.getInstance(moduleName, options);
 
       const hashKey = customHashFn ? customHashFn(...args) : `${moduleName}:${propertyName}`;
@@ -95,7 +100,7 @@ export function useLruCache(options: {
 
       return result;
     };
-  }
+  };
 }
 
 export function cleanLruCacheOnComplete(domainName?: string) {
@@ -108,14 +113,15 @@ export function cleanLruCacheOnComplete(domainName?: string) {
       const boundedOriginalHandler = unboundOriginalHandler.bind(this);
       const result = await boundedOriginalHandler(...args);
 
-      const lruCacheRegistry = appContainer.getNamed<IRegistry<[string, any], ILruCache>>(API_PROVIDER_TYPES.REGISTRY, API_PROVIDER_NAMES.LRU_CACHE);
+      const lruCacheRegistry = appContainer
+        .getNamed<IRegistry<[string, any], ILruCache>>(API_PROVIDER_TYPES.REGISTRY, API_PROVIDER_NAMES.LRU_CACHE);
       const lruCache = lruCacheRegistry.getInstance(moduleName, null);
 
       lruCache.reset();
 
       return result;
     };
-  }
+  };
 }
 
 export function validateDTO(schemaName: VALIDATION_SCHEMAS) {

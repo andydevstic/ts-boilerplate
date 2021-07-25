@@ -1,12 +1,12 @@
 export default {
   database: {
-    postgres: {
-      host: process.env.POSTGRES_HOST,
-      port: Number(process.env.POSTGRES_PORT),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_NAME,
-      dialect: 'postgres',
+    mongo: {
+      host: process.env.MONGO_HOST,
+      port: Number(process.env.MONGO_PORT),
+      username: process.env.MONGO_USER,
+      password: process.env.MONGO_PASSWORD,
+      database: process.env.MONGO_NAME,
+      config: undefined,
     },
   },
   cache: {
@@ -21,7 +21,7 @@ export default {
   },
   jwt: {
     secret: process.env.JWT_SECRET,
-    expirationTime: Number(process.env.JWT_EXPIRATION_TIME),
+    ttl: Number(process.env.JWT_EXPIRATION_TIME),
   },
   bcrypt: {
     saltRounds: Number(process.env.BCRYPT_SALT_ROUNDS) || 8,
